@@ -10,7 +10,7 @@ define gitolite::repostorage(
   $group_name         = 'absent',
   $manage_user_group  = true,
   $basedir            = 'absent',
-  $allowdupe_user     = false,
+  $allowdupe_user     = false
 ){
 
   if ($ensure == 'present') and (($initial_sshkey == 'absent') or ($initial_admin == 'absent')) {
@@ -33,11 +33,11 @@ define gitolite::repostorage(
     default => $basedir
   }
 
-  $real_uid => $uid ? {
+  $real_uid = $uid ? {
     'iuid'  => iuid($real_uid_name,'webhosting'),
     default => $uid
   }
-  $real_gid => $gid ? {
+  $real_gid = $gid ? {
     'iuid'  => iuid($real_uid_name,'webhosting'),
     default => $gid
   }
