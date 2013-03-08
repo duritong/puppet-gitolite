@@ -33,12 +33,21 @@ define gitolite::repostorage(
     default => $basedir
   }
 
+  $real_uid => $uid ? {
+    'iuid'  => iuid($real_uid_name,'webhosting'),
+    default => $uid
+  }
+  $real_gid => $gid ? {
+    'iuid'  => iuid($real_uid_name,'webhosting'),
+    default => $gid
+  }
+
   user::managed{$name:
     ensure            => $ensure,
     homedir           => $real_basedir,
     allowdupe         => $allowdupe_user,
-    uid               => $uid,
-    gid               => $gid,
+    uid               => $real_uid,
+    gid               => $real_gid,
     manage_group      => $manage_user_group,
     password          => $real_password,
     password_crypted  => $password_crypted,
