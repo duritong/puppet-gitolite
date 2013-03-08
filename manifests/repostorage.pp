@@ -66,14 +66,14 @@ define gitolite::repostorage(
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
     file{"${real_basedir}/initial_admin.pub":
-      content => "${initial_sshkey}\n",
+      content => "${initial_sshkey} ${initial_admin}\n",
       require => User[$name],
       owner   => $name,
       group   => $real_group_name,
       mode    => '0600';
     }
     exec{"create_gitolite_${name}":
-      command => "gitolite setup --pubkey ${real_basedir}/initial_admin.pub --admin ${initial_admin}",
+      command => "gitolite setup -pk ${real_basedir}/initial_admin.pub",
       unless  => "test -d ${real_basedir}/repositories",
       cwd     => $real_basedir,
       user    => $name,
