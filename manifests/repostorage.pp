@@ -1,7 +1,6 @@
 # a gitloite repostorage
 define gitolite::repostorage(
   $ensure             = 'present',
-  $initial_admin      = 'absent',
   $initial_sshkey     = 'absent',
   $password           = 'absent',
   $password_crypted   = true,
@@ -13,8 +12,8 @@ define gitolite::repostorage(
   $allowdupe_user     = false
 ){
 
-  if ($ensure == 'present') and (($initial_sshkey == 'absent') or ($initial_admin == 'absent')) {
-    fail("You need to pass \$initial_sshkey and \$initial_admin if repostorage ${name} should be present!")
+  if ($ensure == 'present') and ($initial_sshkey == 'absent') {
+    fail("You need to pass \$initial_sshkey if repostorage ${name} should be present!")
   }
   include ::gitolite
 
@@ -66,7 +65,7 @@ define gitolite::repostorage(
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
     file{"${real_basedir}/initial_admin.pub":
-      content => "${initial_sshkey} ${initial_admin}\n",
+      content => "${initial_sshkey}\n",
       require => User[$name],
       owner   => $name,
       group   => $real_group_name,
