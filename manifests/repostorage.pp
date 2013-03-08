@@ -54,6 +54,7 @@ define gitolite::repostorage(
   }
 
 
+  include gitolite::gitaccess
   user::groups::manage_user{
     $name:
       ensure => $ensure,
