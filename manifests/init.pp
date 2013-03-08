@@ -2,7 +2,7 @@
 class gitolite {
 
   require git
-  class $::operatingsystem {
+  case $::operatingsystem {
     centos,redhat:  { include gitolite::centos }
     default:        { include gitolite::base }
   }
