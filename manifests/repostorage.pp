@@ -33,11 +33,11 @@ define gitolite::repostorage(
   }
 
   $real_uid = $uid ? {
-    'iuid'  => iuid($real_uid_name,'webhosting'),
+    'iuid'  => iuid($real_uid_name,'gitolite'),
     default => $uid
   }
   $real_gid = $gid ? {
-    'iuid'  => iuid($real_uid_name,'webhosting'),
+    'iuid'  => iuid($real_uid_name,'gitolite'),
     default => $gid
   }
 
