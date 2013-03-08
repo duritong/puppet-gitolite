@@ -65,7 +65,7 @@ define gitolite::repostorage(
     User::Groups::Manage_user[$name]{
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
-    file{"${real_basedir}/initial_admin_pubkey.puppet":
+    file{"${real_basedir}/initial_admin.pub":
       content => "${initial_sshkey}\n",
       require => User[$name],
       owner   => $name,
@@ -73,12 +73,12 @@ define gitolite::repostorage(
       mode    => '0600';
     }
     exec{"create_gitolite_${name}":
-      command => "gitolite setup -pk ${real_basedir}/initial_admin_pubkey.puppet",
+      command => "gitolite setup --pubkey ${real_basedir}/initial_admin.pub --admin ${initial_admin}",
       unless  => "test -d ${real_basedir}/repositories",
       cwd     => $real_basedir,
       user    => $name,
       group   => $name,
-      require => [ Package['gitolite'], File["${real_basedir}/initial_admin_pubkey.puppet"] ],
+      require => [ Package['gitolite'], File["${real_basedir}/initial_admin.pub"] ],
     }
 
   } else {
