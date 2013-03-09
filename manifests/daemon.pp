@@ -45,4 +45,8 @@ class gitolite::daemon(
     ],
     notify  => Service['xinetd'],
   }
+
+  if $::selinux == 'true' {
+    include gitolite::daemon::selinux
+  }
 }

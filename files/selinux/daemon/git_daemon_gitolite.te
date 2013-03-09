@@ -1,0 +1,10 @@
+module git_daemon_gitolite 1.0;
+
+require {
+        type git_system_t;
+        type git_system_content_t;
+        class lnk_file read;
+}
+
+#============= git_system_t ==============
+allow git_system_t git_system_content_t:lnk_file read;
