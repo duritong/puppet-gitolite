@@ -9,7 +9,8 @@ define gitolite::repostorage(
   $group_name         = 'absent',
   $manage_user_group  = true,
   $basedir            = 'absent',
-  $allowdupe_user     = false
+  $allowdupe_user     = false,
+  $rc_options         = {}
 ){
 
   if ($ensure == 'present') and ($initial_sshkey == 'absent') {
@@ -64,21 +65,51 @@ define gitolite::repostorage(
     User::Groups::Manage_user[$name]{
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
-    file{"${real_basedir}/initial_admin.pub":
-      content => "${initial_sshkey}\n",
-      require => User[$name],
-      owner   => $name,
-      group   => $real_group_name,
-      mode    => '0600';
+
+    $default_rc = {
+      umask           => '0077',
+      git_config_keys => [],
+      log_extra       => false, #privacy by default
+      additional_cmds => [],
+      syntactic_sugar => [],
+      input           => [],
+      access_1        => [],
+      pre_git         => [],
+      access_2        => [],
+      post_git        => [],
+      pre_create      => [],
+      post_create     => [
+        'post-compile/update-git-configs',
+        'post-compile/update-gitweb-access-list',
+        'post-compile/update-git-daemon-access-list', ],
+      post_compile    => [
+        'post-compile/ssh-authkeys',
+        'post-compile/update-git-configs',
+        'post-compile/update-gitweb-access-list',
+        'post-compile/update-git-daemon-access-list', ],
+    }
+    $rc = merge($default_rc, $rc_options)
+
+    file{
+      "${real_basedir}/initial_admin.pub":
+        content => "${initial_sshkey}\n",
+        owner   => $name,
+        group   => $real_group_name,
+        mode    => '0600';
+      "${real_basedir}/.gitolite.rc":
+        content => template('gitolite/gitolite.rc.erb'),
+        owner   => $name,
+        group   => $real_group_name,
+        mode    => '0600';
     }
     exec{"create_gitolite_${name}":
       command     => "gitolite setup -pk ${real_basedir}/initial_admin.pub",
-      environment => ["HOME=${real_basedir}" ],
+      environment => [ "HOME=${real_basedir}" ],
       unless      => "test -d ${real_basedir}/repositories",
       cwd         => $real_basedir,
       user        => $name,
       group       => $name,
-      require     => [ Package['gitolite'], File["${real_basedir}/initial_admin.pub"] ],
+      require     => [ Package['gitolite'], File["${real_basedir}/initial_admin.pub","${real_basedir}/.gitolite.rc"] ],
     }
 
   } else {
