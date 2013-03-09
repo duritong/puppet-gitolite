@@ -7,6 +7,12 @@ class gitolite::daemon::selinux {
     before      => Service['xinetd'],
   }
 
+  selinux::fcontext{'/home/[^/]*/repositories(/.*)?':
+    setype => 'git_system_content_t'
+    require   => Package['git-daemon'],
+    before    => Service['xinetd'],
+  }
+
   selinux::policy{
     'git_daemon_gitolite':
       te_source => 'puppet:///modules/gitolite/selinux/daemon/git_daemon_gitolite.te',
