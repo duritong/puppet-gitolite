@@ -38,7 +38,7 @@ class gitolite::daemon(
     changes => [
       'set disable no',
       'set user gitolited',
-      'set server_args --interpolated-path=/var/lib/git/%H/%D --syslog --inetd',
+      'set server_args/value \'--interpolated-path=/var/lib/git/%H/%D --syslog --inetd\'',
     ],
     notify  => Service['xinetd'],
   }
