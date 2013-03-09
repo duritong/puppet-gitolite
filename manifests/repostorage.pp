@@ -77,7 +77,7 @@ define gitolite::repostorage(
       extra_git_config_keys => [],
       log_extra             => false, #privacy by default
       external_settings     => {},
-      commmands             => [
+      commands              => [
         'help', 'desc', 'info', 'perms', 'writable',
       ],
       extra_commands        => [],
