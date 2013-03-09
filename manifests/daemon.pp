@@ -1,5 +1,5 @@
 class gitolite::daemon(
-  $use_shorewall = false,
+  $use_shorewall = false
 ) {
   class{'git::daemon':
     use_shorewall => $use_shorewall,
