@@ -21,7 +21,7 @@
     UMASK                       =>  <%= rc['umask'] %>,
 
     # look in the "GIT-CONFIG" section in the README for what to do
-    GIT_CONFIG_KEYS             =>  '<%= rc['git_config_keys'].join(' ') %>',
+    GIT_CONFIG_KEYS             =>  '<%= (rc['git_config_keys']|rc['extra_git_config_keys']).join(' ') %>',
 
     # comment out if you don't need all the extra detail in the logfile
 <% if rc['log_extra'] -%>
@@ -41,6 +41,9 @@
     # WRITER_CAN_UPDATE_DESC    =>  1,
     # used by the info command
     # SITE_INFO                 =>  'Please see http://blahblah/gitolite for more help',
+<% rc['external_settings'].each do |k,v| -%>
+    <%= k.upcase %> => <%= v %>,
+<% end -%>
 
     # add more roles (like MANAGER, TESTER, ...) here.
     #   WARNING: if you make changes to this hash, you MUST run 'gitolite
@@ -57,16 +60,7 @@
     # these are available to remote users
     COMMANDS                    =>
         {
-            'help'              =>  1,
-            'desc'              =>  1,
-            # 'fork'            =>  1,
-            'info'              =>  1,
-            # 'mirror'          =>  1,
-            'perms'             =>  1,
-            # 'sskm'            =>  1,
-            'writable'          =>  1,
-            # 'D'               =>  1,
-<% rc['additional_cmds'].each do |cmd| -%>
+<% (rc['commands']|rc['extra_commands']).each do |cmd| -%>
             '<%= cmd %>'        => 1,
 <% end -%>
         },
@@ -149,7 +143,7 @@
     # these will run in sequence after a new repo is created
     POST_CREATE                 =>
         [
-<% rc['post_create'].each do |cmd| -%>
+<% (rc['post_create']rc['extra_post_compile']).each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -158,7 +152,7 @@
     # these will run in sequence after post-update
     POST_COMPILE                =>
         [
-<% rc['post_compile'].each do |cmd| -%>
+<% (rc['post_compile']|rc['extra_post_compile']).each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
