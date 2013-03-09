@@ -7,10 +7,11 @@ define gitolite::repostorage(
   $password_crypted   = true,
   $uid                = 'absent',
   $gid                = 'uid',
-  $group_name         = 'absent',
   $manage_user_group  = true,
   $basedir            = 'absent',
   $allowdupe_user     = false,
+  $git_daemon         = false,
+  $git_vhost          = 'absent',
   $rc_options         = {}
 ){
 
@@ -22,11 +23,6 @@ define gitolite::repostorage(
   $real_password = $password ? {
     'trocla'  => trocla("gitolite_${name}",'sha512crypt'),
     default   => $password
-  }
-
-  $real_group_name = $group_name ? {
-    'absent' => $name,
-    default => $group_name
   }
 
   $real_basedir = $basedir ? {
@@ -56,10 +52,21 @@ define gitolite::repostorage(
 
 
   include gitolite::gitaccess
+  $gitolited_ensure = $ensure ? {
+    absent  => 'absent',
+    default => $git_daemon ? {
+      true    => 'present',
+      default => 'absent'
+    }
+  }
   user::groups::manage_user{
     $name:
       ensure => $ensure,
-      group  => 'gitaccess',
+      group  => 'gitaccess';
+    "gitolited_in_${name}":
+      ensure => $gitolited_ensure,
+      user   => 'gitolited'
+      group  => $name;
   }
 
   if $ensure == 'present' {
@@ -106,12 +113,12 @@ define gitolite::repostorage(
       "${real_basedir}/${initial_admin}.pub":
         content => "${initial_sshkey}\n",
         owner   => $name,
-        group   => $real_group_name,
+        group   => $name,
         mode    => '0600';
       "${real_basedir}/.gitolite.rc":
         content => template('gitolite/gitolite.rc.erb'),
         owner   => $name,
-        group   => $real_group_name,
+        group   => $name,
         mode    => '0600';
     }
     exec{"create_gitolite_${name}":
@@ -122,6 +129,17 @@ define gitolite::repostorage(
       user        => $name,
       group       => $name,
       require     => [ Package['gitolite'], File["${real_basedir}/${initial_admin}.pub","${real_basedir}/.gitolite.rc"] ],
+    }
+
+    if $git_daemon {
+      if $git_vhost == 'absent' {
+        fail("You need to define \$git_vhost if you want to git_daemon for ${name}")
+      }
+      file{"/var/lib/git/${git_vhost}":
+        ensure  => link,
+        target  => "${real_basedir}/repositories",
+        require => Exec["create_gitolite_${name}"],
+      }
     }
 
   } else {
