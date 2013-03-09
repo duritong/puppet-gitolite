@@ -8,7 +8,7 @@ class gitolite::daemon::selinux {
   }
 
   selinux::fcontext{'/home/[^/]*/repositories(/.*)?':
-    setype => 'git_system_content_t'
+    setype => 'git_system_content_t',
     require   => Package['git-daemon'],
     before    => Service['xinetd'],
   }
