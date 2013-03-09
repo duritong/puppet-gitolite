@@ -14,7 +14,7 @@
 # doc/non-core.mkd (http://sitaramc.github.com/gitolite/non-core.html) or in
 # the corresponding source file itself.
 
-%RC = (
+%%RC = (
     # if you're using mirroring, you need a hostname.  This is *one* simple
     # word, not a full domain name.  See documentation if in doubt
     # HOSTNAME                  =>  'darkstar',
@@ -143,7 +143,7 @@
     # these will run in sequence after a new repo is created
     POST_CREATE                 =>
         [
-<% (rc['post_create']rc['extra_post_compile']).each do |cmd| -%>
+<% (rc['post_create']|rc['extra_post_create']).each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
