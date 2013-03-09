@@ -65,7 +65,7 @@ define gitolite::repostorage(
       group  => 'gitaccess';
     "gitolited_in_${name}":
       ensure => $gitolited_ensure,
-      user   => 'gitolited'
+      user   => 'gitolited',
       group  => $name;
   }
 
