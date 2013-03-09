@@ -1,3 +1,4 @@
+# setup git-daemin for gitolite
 class gitolite::daemon(
   $use_shorewall = false
 ) {
@@ -31,14 +32,14 @@ class gitolite::daemon(
     force         => true,
     recurselimit  => 1,
     require       => Package['git-daemon'],
-  } 
+  }
   augeas{'enable_git_daemon':
     context => '/files/etc/xinetd.d/git/service',
     changes => [
       'set disable no',
       'set user gitolited',
       'set server_args --interpolated-path=/var/lib/git/%H/%D --syslog --inetd',
-    ]
+    ],
     notify  => Service['xinetd'],
   }
 }
