@@ -10,13 +10,22 @@ define gitolite::repostorage(
   $manage_user_group  = true,
   $basedir            = 'absent',
   $allowdupe_user     = false,
+  $rc_options         = {},
   $git_daemon         = false,
   $git_vhost          = 'absent',
-  $rc_options         = {}
+  $cgit               = false,
+  $ssl_mode           = 'normal',
+  $cgit_options       = {}
 ){
 
   if ($ensure == 'present') and (($initial_sshkey == 'absent') or ($initial_admin == 'absent')) {
     fail("You need to pass \$initial_sshkey if repostorage ${name} should be present!")
+  }
+  if ($ensure == 'present') and ($cgit and git_vhost == 'absent') {
+    fail("You need to pass \$git_vhost if you want to use cgit for ${name}!")
+  }
+  if ($ensure == 'present') and ($git_daemon and git_vhost == 'absent') {
+    fail("You need to pass \$git_vhost if you want to use git_daemon for ${name}!")
   }
   include ::gitolite
 
@@ -74,8 +83,18 @@ define gitolite::repostorage(
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
 
+    if $git_daemon {
+      $gitolite_umask = '0027'
+    } else {
+      $gitolite_umask = '0077'
+    }
+    if $cgit {
+      $external_settings = { 'site_info' => "Please see http://${git_vhost} for your cgit hosting" }
+    } else {
+      $external_settings = {}
+    }
     $default_rc = {
-      umask                 => '0077',
+      umask                 => $gitolite_umask,
       git_config_keys       => [ # some sane defaults
         'gitweb.owner', 'gitweb.description', 'gitweb.category',
         'hooks.mailinglist', 'hooks.emailprefix', 'hooks.announcelist',
@@ -83,7 +102,7 @@ define gitolite::repostorage(
       ],
       extra_git_config_keys => [],
       log_extra             => false, #privacy by default
-      external_settings     => {},
+      external_settings     => $external_settings,
       commands              => [
         'help', 'desc', 'info', 'perms', 'writable',
       ],
@@ -140,6 +159,18 @@ define gitolite::repostorage(
         target  => "${real_basedir}/repositories",
         require => Exec["create_gitolite_${name}"],
       }
+    }
+
+    if $cgit {
+      cgit::instance{
+        $git_vhost:
+          ensure        => $ensure,
+          base_dir      => $real_basedir,
+          ssl_mode      => $ssl_mode,
+          user          => $name,
+          group         => $name,
+          cgit_options  => $cgit_options;
+      } 
     }
 
   } else {
