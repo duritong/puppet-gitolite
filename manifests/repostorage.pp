@@ -89,7 +89,7 @@ define gitolite::repostorage(
       $gitolite_umask = '0077'
     }
     if $cgit {
-      $external_settings = { 'site_info' => "Please see http://${git_vhost} for your cgit hosting" }
+      $external_settings = { 'site_info' => "'Please see http://${git_vhost} for your cgit hosting.'" }
     } else {
       $external_settings = {}
     }
