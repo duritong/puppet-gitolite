@@ -7,6 +7,6 @@ class gitolite::daemon::selinux::web inherits gitolite::daemon::selinux {
     [ '/home/[^/]*/\.gitolite\.rc',
       '/home/[^/]*/\.gitolite(/.*)?',
       '/home/[^/]*/projects\.list' ]:
-        seltype => 'httpd_git_rw_content_t';
+        setype => 'httpd_git_rw_content_t';
   }
 }
