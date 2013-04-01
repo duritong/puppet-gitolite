@@ -90,8 +90,10 @@ define gitolite::repostorage(
     }
     if $cgit {
       $external_settings = { 'site_info' => "'Please see http://${git_vhost} for your cgit hosting.'" }
+      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'htpasswd' ]
     } else {
       $external_settings = {}
+      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', ]
     }
     $default_rc = {
       umask                 => $gitolite_umask,
@@ -103,9 +105,7 @@ define gitolite::repostorage(
       extra_git_config_keys => [],
       log_extra             => false, #privacy by default
       external_settings     => $external_settings,
-      commands              => [
-        'help', 'desc', 'info', 'perms', 'writable',
-      ],
+      commands              => $commands,
       extra_commands        => [],
       syntactic_sugar       => [],
       input                 => [],
