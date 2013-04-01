@@ -1,23 +1,25 @@
 # a gitloite repostorage
 define gitolite::repostorage(
-  $ensure             = 'present',
-  $initial_admin      = 'absent',
-  $initial_sshkey     = 'absent',
-  $password           = 'absent',
-  $password_crypted   = true,
-  $uid                = 'absent',
-  $gid                = 'uid',
-  $manage_user_group  = true,
-  $basedir            = 'absent',
-  $allowdupe_user     = false,
-  $rc_options         = {},
-  $git_daemon         = false,
-  $git_vhost          = 'absent',
-  $cgit               = false,
-  $anonymous_http     = false,
-  $ssl_mode           = 'normal',
-  $domainalias        = 'absent',
-  $cgit_options       = {}
+  $ensure               = 'present',
+  $initial_admin        = 'absent',
+  $initial_sshkey       = 'absent',
+  $password             = 'absent',
+  $password_crypted     = true,
+  $uid                  = 'absent',
+  $gid                  = 'uid',
+  $manage_user_group    = true,
+  $basedir              = 'absent',
+  $allowdupe_user       = false,
+  $rc_options           = {},
+  $git_daemon           = false,
+  $git_vhost            = 'absent',
+  $cgit                 = false,
+  $anonymous_http       = false,
+  $ssl_mode             = 'normal',
+  $domainalias          = 'absent',
+  $domainalias_postfix  = 'absent',
+  $domainalias_prefix   = 'git-',
+  $cgit_options         = {}
 ){
 
   # params validation
@@ -30,7 +32,7 @@ define gitolite::repostorage(
   if ($ensure == 'present') and ($git_daemon and $git_vhost == 'absent') {
     fail("You need to pass \$git_vhost if you want to use git_daemon for ${name}!")
   }
-  if ($ensure == 'present') and ($anonymous_http and not $cgit) {
+  if ($ensure == 'present') and ($anonymous_http and !$cgit) {
     fail("You need to enable \$cgit if you want to use anonymous_http for ${name}!")
   }
   include ::gitolite
@@ -168,10 +170,20 @@ define gitolite::repostorage(
     }
 
     if $cgit {
+      if $domainalias_postfix != 'absent' {
+        if $domainalias != 'absent' {
+          $real_domainalias = "${domainalias} ${domainalias_prefix}${name}${domainalias_postfix}"
+        } else {
+          $real_domainalias = "${domainalias_prefix}${name}${domainalias_postfix}"
+        }
+      } else {
+        $real_domainalias = $domainalias
+      }
+
       cgit::instance{
         $git_vhost:
           ensure          => $ensure,
-          domainalias     => $domainalias,
+          domainalias     => $real_domainalias,
           base_dir        => $real_basedir,
           ssl_mode        => $ssl_mode,
           user            => $name,
