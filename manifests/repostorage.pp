@@ -14,18 +14,23 @@ define gitolite::repostorage(
   $git_daemon         = false,
   $git_vhost          = 'absent',
   $cgit               = false,
+  $anonymous_http     = false,
   $ssl_mode           = 'normal',
   $cgit_options       = {}
 ){
 
+  # params validation
   if ($ensure == 'present') and (($initial_sshkey == 'absent') or ($initial_admin == 'absent')) {
     fail("You need to pass \$initial_sshkey if repostorage ${name} should be present!")
   }
-  if ($ensure == 'present') and ($cgit and git_vhost == 'absent') {
+  if ($ensure == 'present') and ($cgit and $git_vhost == 'absent') {
     fail("You need to pass \$git_vhost if you want to use cgit for ${name}!")
   }
-  if ($ensure == 'present') and ($git_daemon and git_vhost == 'absent') {
+  if ($ensure == 'present') and ($git_daemon and $git_vhost == 'absent') {
     fail("You need to pass \$git_vhost if you want to use git_daemon for ${name}!")
+  }
+  if ($ensure == 'present') and ($anonymous_http and not $cgit) {
+    fail("You need to enable \$cgit if you want to use anonymous_http for ${name}!")
   }
   include ::gitolite
 
@@ -164,12 +169,13 @@ define gitolite::repostorage(
     if $cgit {
       cgit::instance{
         $git_vhost:
-          ensure        => $ensure,
-          base_dir      => $real_basedir,
-          ssl_mode      => $ssl_mode,
-          user          => $name,
-          group         => $name,
-          cgit_options  => $cgit_options;
+          ensure          => $ensure,
+          base_dir        => $real_basedir,
+          ssl_mode        => $ssl_mode,
+          user            => $name,
+          group           => $name,
+          anonymous_http  => $anonymous_http,
+          cgit_options    => $cgit_options;
       } 
     }
 
