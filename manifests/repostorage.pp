@@ -16,6 +16,7 @@ define gitolite::repostorage(
   $cgit               = false,
   $anonymous_http     = false,
   $ssl_mode           = 'normal',
+  $domainalias        = 'absent',
   $cgit_options       = {}
 ){
 
@@ -170,6 +171,7 @@ define gitolite::repostorage(
       cgit::instance{
         $git_vhost:
           ensure          => $ensure,
+          domainalias     => $domainalias,
           base_dir        => $real_basedir,
           ssl_mode        => $ssl_mode,
           user            => $name,
