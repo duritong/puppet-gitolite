@@ -22,7 +22,7 @@
 
 <% if cgit -%>
     HTTP_ANON_USER              => 'daemon',
-    HTPASSWD_FILE               => '/var/www/htpasswds/<%= git_vhost %>',
+    HTPASSWD_FILE               => '/var/www/git_htpasswds/<%= git_vhost %>/htpasswd',
 <% end -%>
     # look in the "GIT-CONFIG" section in the README for what to do
     GIT_CONFIG_KEYS             =>  '<%= (rc['git_config_keys']|rc['extra_git_config_keys']).join(' ') %>',
