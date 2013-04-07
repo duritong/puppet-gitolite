@@ -19,7 +19,10 @@ define gitolite::repostorage(
   $domainalias          = 'absent',
   $domainalias_postfix  = 'absent',
   $domainalias_prefix   = 'git-',
-  $cgit_options         = {}
+  $cgit_options         = {},
+  $nagios_check         = false,
+  $nagios_web_check     = 'OK',
+  $nagios_web_use       = 'generic-service',
 ){
 
   # params validation
@@ -182,14 +185,17 @@ define gitolite::repostorage(
 
       cgit::instance{
         $git_vhost:
-          ensure          => $ensure,
-          domainalias     => $real_domainalias,
-          base_dir        => $real_basedir,
-          ssl_mode        => $ssl_mode,
-          user            => $name,
-          group           => $name,
-          anonymous_http  => $anonymous_http,
-          cgit_options    => $cgit_options;
+          ensure            => $ensure,
+          domainalias       => $real_domainalias,
+          base_dir          => $real_basedir,
+          ssl_mode          => $ssl_mode,
+          user              => $name,
+          group             => $name,
+          anonymous_http    => $anonymous_http,
+          cgit_options      => $cgit_options,
+          nagios_check      => $nagios_check,
+          nagios_web_check  => $nagios_web_check,
+          nagios_web_user   => $nagios_web_use,
       } 
     }
 
@@ -197,5 +203,28 @@ define gitolite::repostorage(
     User::Groups::Manage_user[$name]{
       before => User::Managed[$name],
     }
+  }
+
+  if $nagios_check {
+    $check_hostname = $git_vhost ? { 
+      'absent'  => $::fqdn,
+      default   => $git_vhost
+    }   
+    sshd::nagios{"gitrepo_${name}":
+      ensure          => $ensure,
+      port            => 22, 
+      check_hostname  => $check_hostname,
+    } 
+    $git_daemon_ensure = $ensure ? {
+      'present' => $git_daemon ? {
+        false   => 'absent',
+        default => 'present'
+      },  
+      default   => $ensure
+    }
+    nagios::service{"git_${name}":
+      ensure        => $git_daemon_ensure,
+      check_command => "check_git!${check_hostname}",
+    }   
   }
 }
