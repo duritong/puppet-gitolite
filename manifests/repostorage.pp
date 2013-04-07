@@ -22,7 +22,7 @@ define gitolite::repostorage(
   $cgit_options         = {},
   $nagios_check         = false,
   $nagios_web_check     = 'OK',
-  $nagios_web_use       = 'generic-service',
+  $nagios_web_use       = 'generic-service'
 ){
 
   # params validation
