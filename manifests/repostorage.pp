@@ -195,7 +195,7 @@ define gitolite::repostorage(
           cgit_options      => $cgit_options,
           nagios_check      => $nagios_check,
           nagios_web_check  => $nagios_web_check,
-          nagios_web_user   => $nagios_web_use,
+          nagios_web_use    => $nagios_web_use,
       } 
     }
 
