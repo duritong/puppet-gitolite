@@ -196,6 +196,7 @@ define gitolite::repostorage(
           nagios_check      => $nagios_check,
           nagios_web_check  => $nagios_web_check,
           nagios_web_use    => $nagios_web_use,
+          require           => User::Managed[$name],
       } 
     }
 
