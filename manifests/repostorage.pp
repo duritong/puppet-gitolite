@@ -90,7 +90,7 @@ define gitolite::repostorage(
   }
 
   if $ensure == 'present' {
-    User::Groups::Manage_user[$name]{
+    User::Groups::Manage_user[$name,"gitolited_in_${name}"]{
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
 
@@ -201,7 +201,7 @@ define gitolite::repostorage(
     }
 
   } else {
-    User::Groups::Manage_user[$name]{
+    User::Groups::Manage_user[$name,"gitolited_in_${name}"]{
       before => User::Managed[$name],
     }
   }
