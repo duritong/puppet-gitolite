@@ -161,7 +161,12 @@
 <% end -%>
         ],
 );
+<% if rc['local_code'] && != rc['local_code'] != 'absent' -%>
 
+     # extra code for gitolite
+     LOCAL_CODE                 => <%= rc['local_code'] %>
+
+<% end -%>
 # ------------------------------------------------------------------------------
 # per perl rules, this should be the last line in such a file:
 1;

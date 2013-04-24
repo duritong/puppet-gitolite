@@ -101,10 +101,10 @@ define gitolite::repostorage(
     }
     if $cgit {
       $external_settings = { 'site_info' => "'Please see http://${git_vhost} for your cgit hosting.'" }
-      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'htpasswd' ]
+      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'hooks', 'htpasswd', ]
     } else {
       $external_settings = {}
-      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', ]
+      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'hooks' ]
     }
     $default_rc = {
       umask                 => $gitolite_umask,
@@ -136,6 +136,7 @@ define gitolite::repostorage(
         'post-compile/update-gitweb-access-list',
         'post-compile/update-git-daemon-access-list', ],
       extra_post_compile    => [],
+      local_code            => '/opt/gitolite-local',
     }
     $rc = merge($default_rc, $rc_options)
 
