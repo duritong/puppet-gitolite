@@ -161,7 +161,7 @@
 <% end -%>
         ],
 );
-<% if rc['local_code'] && != rc['local_code'] != 'absent' -%>
+<% if rc['local_code'] && (rc['local_code'] != 'absent') -%>
 
      # extra code for gitolite
      LOCAL_CODE                 => <%= rc['local_code'] %>
