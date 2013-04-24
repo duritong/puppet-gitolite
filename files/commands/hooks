@@ -17,14 +17,14 @@ Usage:  ssh git@host hooks show <repo> <hook>        # Shows current active hook
         ssh git@host hooks add  <repo> <hook/script> # Add a certain script to a hook - this must be named like hook/script.
         ssh git@host hooks rm   <repo> <hook/script> # Removes a certain hook script from a repository.
 
-Only users with '+' access to a repository can show, add or rm hooks from this repository.
+Only users with write access to the giolite-admin repository can show, add or rm hooks from a certain repository.
 
 END
   exit 0
 end
 
-def check_access(repo,user)
-  `gitolite access -q "#{repo}" #{user} + any`
+def check_access(user)
+  `gitolite access -q "gitolite-admin" #{user} W any`
   $?.to_i == 0
 end
 
@@ -46,7 +46,7 @@ end
 def show_hooks(repo,hook)
   abort("Hook #{hook} is  not part of allowed types: #{allowed_hooks.join(', ')}.") unless allowed_hooks.include?(hook)
   hook_file = hook_file_path(repo,hook)
-  abort("No such hookfile #{hook} exists.") unless File.exists?(hook_file)
+  abort("No file for hook #{hook} exists.") unless File.exists?(hook_file)
   puts 'Current hooks:'
   puts '--------------'
   puts
@@ -129,7 +129,7 @@ when 'show','add','rm'
   repo = repo_name(ARGV.shift)
   second_arg = ARGV.shift
   usage() if second_arg.nil?
-  abort('You do not have sufficient permissions (requires +) on this repository.') unless check_access(repo,ENV['GL_USER'])
+  abort('You do not have sufficient permissions (requires +) on this repository.') unless check_access(ENV['GL_USER'])
   verify_repo(repo)
   case cmd
   when 'show'
