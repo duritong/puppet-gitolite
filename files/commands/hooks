@@ -11,12 +11,12 @@ abort("GL_USER not set") unless ENV['GL_USER']
 
 def usage
   puts <<END
-
 Usage:  ssh git@host hooks show <repo> <hook>        # Shows current active hooks for repo.
         ssh git@host hooks list [<hook>]             # List available hooks for a certain type. If <hook> is omitted all hooks are shown.
         ssh git@host hooks add  <repo> <hook/script> # Add a certain script to a hook - this must be named like hook/script.
         ssh git@host hooks rm   <repo> <hook/script> # Removes a certain hook script from a repository.
 
+Allows a user to manage hook-scripts on the following hooks of a repository: #{allowed_hooks.join(', ')}
 Only users with write access to the giolite-admin repository can show, add or rm hooks from a certain repository.
 
 END
