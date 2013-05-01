@@ -633,6 +633,11 @@ envelopesender=$(git config hooks.envelopesender)
 emailprefix=$(git config hooks.emailprefix || echo '[SCM]')
 generatepatch=$(git config hooks.generatepatch | grep -q true && echo '-p')
 
+if [ -z $recipients ]; then
+  echo "** No config hooks.mailinglist defined -> not sending an email"
+  exit 0
+fi
+
 # --- Main loop
 # Allow dual mode: run from the command line just like the update hook, or
 # if no arguments are given then run as a hook script
