@@ -1,3 +1,4 @@
+# selinux specific options needed for a daemon
 class gitolite::daemon::selinux {
 
   selboolean{'git_system_enable_homedirs':
@@ -7,10 +8,10 @@ class gitolite::daemon::selinux {
     before      => Service['xinetd'],
   }
 
-  selinux::fcontext{'/home/[^/]*/repositories(/.*)?':
-    setype => 'git_system_content_t',
-    require   => Package['git-daemon'],
-    before    => Service['xinetd'],
+  selinux::fcontext{'/home/[^/]+/repositories(/.*)?':
+    setype  => 'git_system_content_t',
+    require => Package['git-daemon'],
+    before  => Service['xinetd'],
   }
 
   selinux::policy{
