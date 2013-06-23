@@ -207,6 +207,14 @@ define gitolite::repostorage(
     }
   }
 
+  if ($ensure == 'present') && ($::selinux == 'true') {
+    exec{"restorecon_${name}":
+      command     => "restorecon -R ${real_basedir}",
+      refreshonly => true,
+      subscribe   => Exec["create_gitolite_${name}"];
+    }
+  }
+
   if $nagios_check {
     $check_hostname = $git_vhost ? { 
       'absent'  => $::fqdn,
