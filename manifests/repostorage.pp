@@ -207,7 +207,7 @@ define gitolite::repostorage(
     }
   }
 
-  if ($ensure == 'present') && ($::selinux == 'true') {
+  if ($ensure == 'present') and ($::selinux == 'true') {
     exec{"restorecon_${name}":
       command     => "restorecon -R ${real_basedir}",
       refreshonly => true,
