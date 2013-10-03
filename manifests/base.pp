@@ -39,7 +39,7 @@ class gitolite::base {
       seltype => 'bin_t',
     }
     selinux::fcontext{
-      '/opt/git-hooks':
+      '/opt/git-hooks(/.*)?':
         setype => 'bin_t';
     }
   }
