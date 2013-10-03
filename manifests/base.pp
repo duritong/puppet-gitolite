@@ -33,4 +33,14 @@ class gitolite::base {
       group   => 0,
       mode    => '0755';
   }
+
+  if str2bool($::selinux) {
+    File['/opt/git-hooks']{
+      seltype => 'bin_t',
+    }
+    selinux::fcontext{
+      '/opt/git-hooks':
+        setype => 'bin_t';
+    }
+  }
 }
