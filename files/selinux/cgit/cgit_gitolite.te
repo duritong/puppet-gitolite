@@ -1,4 +1,4 @@
-module cgit_gitolite 1.0;
+module cgit_gitolite 1.1;
 
 require {
         type httpd_git_rw_content_t;
@@ -16,8 +16,8 @@ allow httpd_git_script_t httpd_git_rw_content_t:file execute_no_trans;
 allow httpd_git_script_t ssh_home_t:dir { write remove_name getattr search };
 allow httpd_git_script_t ssh_home_t:file { ioctl read create unlink open getattr };
 
-require {
-}
+allow httpd_git_script_t user_home_dir_t:dir { write remove_name add_name };
+allow httpd_git_script_t user_home_dir_t:file { write rename create open getattr };
 
 #============= git_system_t ==============
 allow git_system_t httpd_git_rw_content_t:dir { read search open getattr };
