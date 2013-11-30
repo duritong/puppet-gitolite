@@ -23,7 +23,7 @@ class gitolite::daemon(
   # clean dangling links
   file{'/var/lib/git':
     ensure        => directory,
-    seltype       => 'git_system_content_t',
+    seltype       => 'git_sys_content_t',
     owner         => root,
     group         => 0,
     mode          => '0644',
