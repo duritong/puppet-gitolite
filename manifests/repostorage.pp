@@ -60,18 +60,6 @@ define gitolite::repostorage(
     default => $gid
   }
 
-  if $disk_size {
-    disks::lv_mount{
-      "git-${name}":
-        size   => $disk_size,
-        folder => $real_basedir,
-        owner  => $real_uid,
-        group  => $real_gid,
-        mode   => '0750',
-        before => User::Managed[$name],
-    }
-  }
-
   user::managed{$name:
     ensure            => $ensure,
     homedir           => $real_basedir,
@@ -83,6 +71,20 @@ define gitolite::repostorage(
     password_crypted  => $password_crypted,
   }
 
+  if $disk_size and $ensure == 'present' {
+    disks::lv_mount{
+      "git-${name}":
+        size   => $disk_size,
+        folder => $real_basedir,
+        owner  => $real_uid,
+        group  => $real_gid,
+        mode   => '0750',
+        before => User::Managed[$name],
+    }
+    User::Managed[$name] {
+      managehome => false,
+    }
+  }
 
   include gitolite::gitaccess
   $gitolited_ensure = $ensure ? {
