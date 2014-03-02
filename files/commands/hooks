@@ -61,7 +61,7 @@ def add_hook(repo,script)
   hook_file = hook_file_path(repo,hook)
   abort("Script is already activated for this hook.") if File.exists?(hook_file) && current_hooks(hook_file).include?(script)
 
-  File.open(hook_file,'w') do |fh|
+  File.open(hook_file,'a+') do |fh|
     fh.puts script_file
   end
   File.chmod(0700,hook_file) unless File.executable?(hook_file)
