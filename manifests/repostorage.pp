@@ -9,6 +9,7 @@ define gitolite::repostorage(
   $gid                  = 'uid',
   $manage_user_group    = true,
   $basedir              = 'absent',
+  $disk_size            = false,
   $allowdupe_user       = false,
   $rc_options           = {},
   $git_daemon           = false,
@@ -57,6 +58,18 @@ define gitolite::repostorage(
   $real_gid = $gid ? {
     'iuid'  => iuid($name,'gitolite'),
     default => $gid
+  }
+
+  if $disk_size {
+    disks::lv_mount{
+      "git-${name}":
+        size   => $disk_size,
+        folder => $real_basedir,
+        owner  => $real_uid,
+        group  => $real_gid,
+        mode   => '0750',
+        before => User::Managed[$name],
+    }
   }
 
   user::managed{$name:
@@ -198,7 +211,7 @@ define gitolite::repostorage(
           nagios_web_check  => $nagios_web_check,
           nagios_web_use    => $nagios_web_use,
           require           => User::Managed[$name],
-      } 
+      }
     }
 
   } else {
@@ -207,7 +220,7 @@ define gitolite::repostorage(
     }
   }
 
-  if ($ensure == 'present') and ($::selinux == 'true') {
+  if ($ensure == 'present') and str2bool($::selinux) {
     exec{"restorecon_${name}":
       command     => "restorecon -R ${real_basedir}",
       refreshonly => true,
@@ -216,25 +229,25 @@ define gitolite::repostorage(
   }
 
   if $nagios_check {
-    $check_hostname = $git_vhost ? { 
+    $check_hostname = $git_vhost ? {
       'absent'  => $::fqdn,
       default   => $git_vhost
-    }   
+    }
     sshd::nagios{"gitrepo_${name}":
       ensure          => $ensure,
-      port            => 22, 
+      port            => 22,
       check_hostname  => $check_hostname,
-    } 
+    }
     $git_daemon_ensure = $ensure ? {
       'present' => $git_daemon ? {
         false   => 'absent',
         default => 'present'
-      },  
+      },
       default   => $ensure
     }
     nagios::service{"git_${name}":
       ensure        => $git_daemon_ensure,
       check_command => "check_git!${check_hostname}",
-    }   
+    }
   }
 }
