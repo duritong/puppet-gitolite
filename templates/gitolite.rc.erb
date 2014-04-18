@@ -18,17 +18,17 @@
     # if you're using mirroring, you need a hostname.  This is *one* simple
     # word, not a full domain name.  See documentation if in doubt
     # HOSTNAME                  =>  'darkstar',
-    UMASK                       =>  <%= rc['umask'] %>,
+    UMASK                       =>  <%= @rc['umask'] %>,
 
-<% if cgit -%>
+<% if @cgit -%>
     HTTP_ANON_USER              => 'daemon',
-    HTPASSWD_FILE               => '/var/www/git_htpasswds/<%= git_vhost %>/htpasswd',
+    HTPASSWD_FILE               => '/var/www/git_htpasswds/<%= @git_vhost %>/htpasswd',
 <% end -%>
     # look in the "GIT-CONFIG" section in the README for what to do
-    GIT_CONFIG_KEYS             =>  '<%= (rc['git_config_keys']|rc['extra_git_config_keys']).join(' ') %>',
+    GIT_CONFIG_KEYS             =>  '<%= (@rc['git_config_keys']|@rc['extra_git_config_keys']).join(' ') %>',
 
     # comment out if you don't need all the extra detail in the logfile
-<% if rc['log_extra'] -%>
+<% if @rc['log_extra'] -%>
     LOG_EXTRA                   =>  1,
 <% else -%>
     #LOG_EXTRA                   =>  1,
@@ -45,7 +45,7 @@
     # WRITER_CAN_UPDATE_DESC    =>  1,
     # used by the info command
     # SITE_INFO                 =>  'Please see http://blahblah/gitolite for more help',
-<% rc['external_settings'].each do |k,v| -%>
+<% @rc['external_settings'].each do |k,v| -%>
     <%= k.upcase %> => <%= v %>,
 <% end -%>
 
@@ -64,7 +64,7 @@
     # these are available to remote users
     COMMANDS                    =>
         {
-<% (rc['commands']|rc['extra_commands']).each do |cmd| -%>
+<% (@rc['commands']|@rc['extra_commands']).each do |cmd| -%>
             '<%= cmd %>'        => 1,
 <% end -%>
         },
@@ -75,7 +75,7 @@
         [
             # 'continuation-lines',
             # 'keysubdirs-as-groups',
-<% rc['syntactic_sugar'].each do |cmd| -%>
+<% @rc['syntactic_sugar'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -88,7 +88,7 @@
             # 'Shell::input',
             # 'Alias::input',
             # 'Mirroring::input',
-<% rc['input'].each do |cmd| -%>
+<% @rc['input'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -97,7 +97,7 @@
     # these will run in sequence just after the first access check is done
     ACCESS_1                    =>
         [
-<% rc['access_1'].each do |cmd| -%>
+<% @rc['access_1'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -109,7 +109,7 @@
             # 'renice 10',
             # 'Mirroring::pre_git',
             # 'partial-copy',
-<% rc['pre_git'].each do |cmd| -%>
+<% @rc['pre_git'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -118,7 +118,7 @@
     # these will run in sequence just after the second access check is done
     ACCESS_2                    =>
         [
-<% rc['access_2'].each do |cmd| -%>
+<% @rc['access_2'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -129,7 +129,7 @@
         [
             # 'Mirroring::post_git',
             # 'CpuTime::post_git',
-<% rc['post_git'].each do |cmd| -%>
+<% @rc['post_git'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -138,7 +138,7 @@
     # these will run in sequence before a new wild repo is created
     PRE_CREATE                  =>
         [
-<% rc['pre_create'].each do |cmd| -%>
+<% @rc['pre_create'].each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -147,7 +147,7 @@
     # these will run in sequence after a new repo is created
     POST_CREATE                 =>
         [
-<% (rc['post_create']|rc['extra_post_create']).each do |cmd| -%>
+<% (@rc['post_create']|@rc['extra_post_create']).each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
@@ -156,14 +156,14 @@
     # these will run in sequence after post-update
     POST_COMPILE                =>
         [
-<% (rc['post_compile']|rc['extra_post_compile']).each do |cmd| -%>
+<% (@rc['post_compile']|@rc['extra_post_compile']).each do |cmd| -%>
               '<%= cmd %>',
 <% end -%>
         ],
-<% if rc['local_code'] && (rc['local_code'] != 'absent') -%>
+<% if @rc['local_code'] && (@rc['local_code'] != 'absent') -%>
 
      # extra code for gitolite
-     LOCAL_CODE                 => '<%= rc['local_code'] %>',
+     LOCAL_CODE                 => '<%= @rc['local_code'] %>',
 
 <% end -%>
 );
