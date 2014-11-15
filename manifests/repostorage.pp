@@ -1,6 +1,7 @@
 # a gitloite repostorage
 define gitolite::repostorage(
   $ensure               = 'present',
+  $configuration        = {},
   $initial_admin        = 'absent',
   $initial_sshkey       = 'absent',
   $password             = 'absent',
@@ -202,6 +203,7 @@ define gitolite::repostorage(
       cgit::instance{
         $git_vhost:
           ensure            => $ensure,
+          configuration     => $configuration,
           domainalias       => $real_domainalias,
           base_dir          => $real_basedir,
           ssl_mode          => $ssl_mode,
