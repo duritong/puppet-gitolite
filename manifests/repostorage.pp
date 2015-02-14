@@ -22,6 +22,7 @@ define gitolite::repostorage(
   $domainalias_postfix = 'absent',
   $domainalias_prefix  = 'git-',
   $cgit_options        = {},
+  $cgit_clone_prefixes = undef,
   $nagios_check        = false,
   $nagios_web_check    = 'OK',
   $nagios_web_use      = 'generic-service'
@@ -205,8 +206,30 @@ ${domainalias_prefix}${name}${domainalias_postfix}"
           $real_domainalias = "${domainalias_prefix}${name}\
 ${domainalias_postfix}"
         }
+        if $cgit_clone_prefixes {
+          $real_cgit_clone_prefixes = $cgit_clone_prefixes
+        } else {
+          if $ssl_mode == 'force' {
+            $real_cgit_clone_prefixes = [
+              "https://${domainalias_prefix}${name}${domainalias_postfix}",
+              "git://${name}",
+            ]
+          } elsif $ssl_mode {
+            $real_cgit_clone_prefixes = [
+              "https://${domainalias_prefix}${name}${domainalias_postfix}",
+              "http://${name}",
+              "git://${name}",
+            ]
+          } else {
+            $real_cgit_clone_prefixes = [
+              "http://${name}",
+              "git://${name}",
+            ]
+          }
+        }
       } else {
         $real_domainalias = $domainalias
+        $real_cgit_clone_prefixes = $cgit_clone_prefixes
       }
 
       cgit::instance{
@@ -220,6 +243,7 @@ ${domainalias_postfix}"
           group            => $name,
           anonymous_http   => $anonymous_http,
           cgit_options     => $cgit_options,
+          clone_prefixes   => $real_cgit_clone_prefixes,
           nagios_check     => $nagios_check,
           nagios_web_check => $nagios_web_check,
           nagios_web_use   => $nagios_web_use,
