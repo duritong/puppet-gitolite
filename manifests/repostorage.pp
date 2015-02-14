@@ -212,18 +212,18 @@ ${domainalias_suffix}"
           if $ssl_mode == 'force' {
             $real_cgit_clone_prefixes = [
               "https://${domainalias_prefix}${name}${domainalias_suffix}",
-              "git://${name}",
+              "git://${git_vhost}",
             ]
           } elsif $ssl_mode {
             $real_cgit_clone_prefixes = [
               "https://${domainalias_prefix}${name}${domainalias_suffix}",
-              "http://${name}",
-              "git://${name}",
+              "http://${git_vhost}",
+              "git://${git_vhost}",
             ]
           } else {
             $real_cgit_clone_prefixes = [
-              "http://${name}",
-              "git://${name}",
+              "http://${git_vhost}",
+              "git://${git_vhost}",
             ]
           }
         }
