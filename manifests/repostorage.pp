@@ -19,8 +19,8 @@ define gitolite::repostorage(
   $anonymous_http      = false,
   $ssl_mode            = 'normal',
   $domainalias         = 'absent',
-  $domainalias_postfix = 'absent',
   $domainalias_prefix  = 'git-',
+  $domainalias_suffix  = 'absent',
   $cgit_options        = {},
   $cgit_clone_prefixes = undef,
   $nagios_check        = false,
@@ -198,25 +198,25 @@ define gitolite::repostorage(
     }
 
     if $cgit {
-      if $domainalias_postfix != 'absent' {
+      if $domainalias_suffix != 'absent' {
         if $domainalias != 'absent' {
           $real_domainalias = "${domainalias} \
-${domainalias_prefix}${name}${domainalias_postfix}"
+${domainalias_prefix}${name}${domainalias_suffix}"
         } else {
           $real_domainalias = "${domainalias_prefix}${name}\
-${domainalias_postfix}"
+${domainalias_suffix}"
         }
         if $cgit_clone_prefixes {
           $real_cgit_clone_prefixes = $cgit_clone_prefixes
         } else {
           if $ssl_mode == 'force' {
             $real_cgit_clone_prefixes = [
-              "https://${domainalias_prefix}${name}${domainalias_postfix}",
+              "https://${domainalias_prefix}${name}${domainalias_suffix}",
               "git://${name}",
             ]
           } elsif $ssl_mode {
             $real_cgit_clone_prefixes = [
-              "https://${domainalias_prefix}${name}${domainalias_postfix}",
+              "https://${domainalias_prefix}${name}${domainalias_suffix}",
               "http://${name}",
               "git://${name}",
             ]
