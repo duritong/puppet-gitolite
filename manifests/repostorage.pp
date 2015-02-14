@@ -1,44 +1,45 @@
 # a gitloite repostorage
 define gitolite::repostorage(
-  $ensure               = 'present',
-  $configuration        = {},
-  $initial_admin        = 'absent',
-  $initial_sshkey       = 'absent',
-  $password             = 'absent',
-  $password_crypted     = true,
-  $uid                  = 'absent',
-  $gid                  = 'uid',
-  $manage_user_group    = true,
-  $basedir              = 'absent',
-  $disk_size            = false,
-  $allowdupe_user       = false,
-  $rc_options           = {},
-  $git_daemon           = false,
-  $git_vhost            = 'absent',
-  $cgit                 = false,
-  $anonymous_http       = false,
-  $ssl_mode             = 'normal',
-  $domainalias          = 'absent',
-  $domainalias_postfix  = 'absent',
-  $domainalias_prefix   = 'git-',
-  $cgit_options         = {},
-  $nagios_check         = false,
-  $nagios_web_check     = 'OK',
-  $nagios_web_use       = 'generic-service'
+  $ensure              = 'present',
+  $configuration       = {},
+  $initial_admin       = 'absent',
+  $initial_sshkey      = 'absent',
+  $password            = 'absent',
+  $password_crypted    = true,
+  $uid                 = 'absent',
+  $gid                 = 'uid',
+  $manage_user_group   = true,
+  $basedir             = 'absent',
+  $disk_size           = false,
+  $allowdupe_user      = false,
+  $rc_options          = {},
+  $git_daemon          = false,
+  $git_vhost           = 'absent',
+  $cgit                = false,
+  $anonymous_http      = false,
+  $ssl_mode            = 'normal',
+  $domainalias         = 'absent',
+  $domainalias_postfix = 'absent',
+  $domainalias_prefix  = 'git-',
+  $cgit_options        = {},
+  $nagios_check        = false,
+  $nagios_web_check    = 'OK',
+  $nagios_web_use      = 'generic-service'
 ){
 
   # params validation
-  if ($ensure == 'present') and (($initial_sshkey == 'absent') or ($initial_admin == 'absent')) {
-    fail("You need to pass \$initial_sshkey if repostorage ${name} should be present!")
+  if ($ensure == 'present') and (
+    ($initial_sshkey == 'absent') or ($initial_admin == 'absent')) {
+    fail("\$initial_sshkey must be set if ${name} should be present!")
   }
   if ($ensure == 'present') and ($cgit and $git_vhost == 'absent') {
     fail("You need to pass \$git_vhost if you want to use cgit for ${name}!")
   }
   if ($ensure == 'present') and ($git_daemon and $git_vhost == 'absent') {
-    fail("You need to pass \$git_vhost if you want to use git_daemon for ${name}!")
+    fail("\$git_vhost must be present if using git_daemon for ${name}!")
   }
   if ($ensure == 'present') and ($anonymous_http and !$cgit) {
-    fail("You need to enable \$cgit if you want to use anonymous_http for ${name}!")
+    fail("Must enable \$cgit if you want to use anonymous_http for ${name}!")
   }
   include ::gitolite
 
@@ -62,14 +63,14 @@ define gitolite::repostorage(
   }
 
   user::managed{$name:
-    ensure            => $ensure,
-    homedir           => $real_basedir,
-    allowdupe         => $allowdupe_user,
-    uid               => $real_uid,
-    gid               => $real_gid,
-    manage_group      => $manage_user_group,
-    password          => $real_password,
-    password_crypted  => $password_crypted,
+    ensure           => $ensure,
+    homedir          => $real_basedir,
+    allowdupe        => $allowdupe_user,
+    uid              => $real_uid,
+    gid              => $real_gid,
+    manage_group     => $manage_user_group,
+    password         => $real_password,
+    password_crypted => $password_crypted,
   }
 
   if $disk_size and $ensure == 'present' {
@@ -87,10 +88,10 @@ define gitolite::repostorage(
     }
   }
 
-  include gitolite::gitaccess
+  include ::gitolite::gitaccess
   $gitolited_ensure = $ensure ? {
-    absent  => 'absent',
-    default => $git_daemon ? {
+    'absent'  => 'absent',
+    default   => $git_daemon ? {
       true    => 'present',
       default => 'absent'
     }
@@ -116,8 +117,12 @@ define gitolite::repostorage(
       $gitolite_umask = '0077'
     }
     if $cgit {
-      $external_settings = { 'site_info' => "'Please see http://${git_vhost} for your cgit hosting.'" }
-      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'hooks', 'htpasswd', ]
+      $external_settings = {
+        'site_info' =>
+          "'Have a look at http://${git_vhost} for your cgit hosting.'",
+      }
+      $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'hooks',
+        'htpasswd', ]
     } else {
       $external_settings = {}
       $commands = [ 'help', 'desc', 'info', 'perms', 'writable', 'hooks' ]
@@ -127,7 +132,7 @@ define gitolite::repostorage(
       git_config_keys       => [ # some sane defaults
         'gitweb.owner', 'gitweb.description', 'gitweb.category',
         'hooks.mailinglist', 'hooks.emailprefix', 'hooks.announcelist',
-        'hooks.envelopesender', 'hooks.generatepatch'
+        'hooks.envelopesender', 'hooks.generatepatch',
       ],
       extra_git_config_keys => [],
       log_extra             => false, #privacy by default
@@ -175,12 +180,14 @@ define gitolite::repostorage(
       cwd         => $real_basedir,
       user        => $name,
       group       => $name,
-      require     => [ Package['gitolite'], File["${real_basedir}/${initial_admin}.pub","${real_basedir}/.gitolite.rc"] ],
+      require     => [ Package['gitolite'],
+        File["${real_basedir}/${initial_admin}.pub",
+              "${real_basedir}/.gitolite.rc"] ],
     }
 
     if $git_daemon {
       if $git_vhost == 'absent' {
-        fail("You need to define \$git_vhost if you want to git_daemon for ${name}")
+        fail("\$git_vhost must be defined if using git_daemon for ${name}")
       }
       file{"/var/lib/git/${git_vhost}":
         ensure  => link,
@@ -192,9 +199,11 @@ define gitolite::repostorage(
     if $cgit {
       if $domainalias_postfix != 'absent' {
         if $domainalias != 'absent' {
-          $real_domainalias = "${domainalias} ${domainalias_prefix}${name}${domainalias_postfix}"
+          $real_domainalias = "${domainalias} \
+${domainalias_prefix}${name}${domainalias_postfix}"
         } else {
-          $real_domainalias = "${domainalias_prefix}${name}${domainalias_postfix}"
+          $real_domainalias = "${domainalias_prefix}${name}\
+${domainalias_postfix}"
         }
       } else {
         $real_domainalias = $domainalias
@@ -202,19 +211,19 @@ define gitolite::repostorage(
 
       cgit::instance{
         $git_vhost:
-          ensure            => $ensure,
-          configuration     => $configuration,
-          domainalias       => $real_domainalias,
-          base_dir          => $real_basedir,
-          ssl_mode          => $ssl_mode,
-          user              => $name,
-          group             => $name,
-          anonymous_http    => $anonymous_http,
-          cgit_options      => $cgit_options,
-          nagios_check      => $nagios_check,
-          nagios_web_check  => $nagios_web_check,
-          nagios_web_use    => $nagios_web_use,
-          require           => User::Managed[$name],
+          ensure           => $ensure,
+          configuration    => $configuration,
+          domainalias      => $real_domainalias,
+          base_dir         => $real_basedir,
+          ssl_mode         => $ssl_mode,
+          user             => $name,
+          group            => $name,
+          anonymous_http   => $anonymous_http,
+          cgit_options     => $cgit_options,
+          nagios_check     => $nagios_check,
+          nagios_web_check => $nagios_web_check,
+          nagios_web_use   => $nagios_web_use,
+          require          => User::Managed[$name],
       }
     }
 
@@ -238,9 +247,9 @@ define gitolite::repostorage(
       default   => $git_vhost
     }
     sshd::nagios{"gitrepo_${name}":
-      ensure          => $ensure,
-      port            => 22,
-      check_hostname  => $check_hostname,
+      ensure         => $ensure,
+      port           => 22,
+      check_hostname => $check_hostname,
     }
     $git_daemon_ensure = $ensure ? {
       'present' => $git_daemon ? {
