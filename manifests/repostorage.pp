@@ -74,9 +74,10 @@ define gitolite::repostorage(
     password_crypted => $password_crypted,
   }
 
-  if $disk_size and $ensure == 'present' {
+  if $disk_size {
     disks::lv_mount{
       "git-${name}":
+        ensure => $ensure,
         size   => $disk_size,
         folder => $real_basedir,
         owner  => $real_uid,
