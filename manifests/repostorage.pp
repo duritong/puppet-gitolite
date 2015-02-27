@@ -179,9 +179,14 @@ define gitolite::repostorage(
     }
     $rc = merge($default_rc, $rc_options)
 
+    if $initial_sshkey =~ /\n$/ {
+      $pubkey = $initial_sshkey
+    } else {
+      $pubkey = "${initial_sshkey}\n"
+    }
     file{
       "${real_basedir}/${initial_admin}.pub":
-        content => "${initial_sshkey}\n",
+        content => $pubkey,
         owner   => $name,
         group   => $name,
         mode    => '0600';
