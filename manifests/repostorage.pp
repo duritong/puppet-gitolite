@@ -80,10 +80,14 @@ define gitolite::repostorage(
         ensure => $ensure,
         size   => $disk_size,
         folder => $real_basedir,
+    }
+    if $ensure == 'present' {
+      Disks::Lv_mount["git-${name}"]{
         owner  => $real_uid,
         group  => $real_gid,
         mode   => '0750',
         before => User::Managed[$name],
+      }
     }
     User::Managed[$name] {
       managehome => false,
@@ -106,6 +110,18 @@ define gitolite::repostorage(
       ensure => $gitolited_ensure,
       user   => 'gitolited',
       group  => $name;
+  }
+  $cgit_ensure = $cgit ? {
+    true  => $ensure,
+    false => 'absent',
+  }
+  cgit::instance{
+    $git_vhost:
+      ensure           => $cgit_ensure,
+      ssl_mode         => $ssl_mode,
+      nagios_check     => $nagios_check,
+      nagios_web_check => $nagios_web_check,
+      nagios_web_use   => $nagios_web_use,
   }
 
   if $ensure == 'present' {
@@ -233,22 +249,16 @@ ${domainalias_suffix}"
         $real_cgit_clone_prefixes = $cgit_clone_prefixes
       }
 
-      cgit::instance{
-        $git_vhost:
-          ensure           => $ensure,
-          configuration    => $configuration,
-          domainalias      => $real_domainalias,
-          base_dir         => $real_basedir,
-          ssl_mode         => $ssl_mode,
-          user             => $name,
-          group            => $name,
-          anonymous_http   => $anonymous_http,
-          cgit_options     => $cgit_options,
-          clone_prefixes   => $real_cgit_clone_prefixes,
-          nagios_check     => $nagios_check,
-          nagios_web_check => $nagios_web_check,
-          nagios_web_use   => $nagios_web_use,
-          require          => User::Managed[$name],
+      Cgit::Instance[$git_vhost]{
+        configuration    => $configuration,
+        domainalias      => $real_domainalias,
+        base_dir         => $real_basedir,
+        user             => $name,
+        group            => $name,
+        anonymous_http   => $anonymous_http,
+        cgit_options     => $cgit_options,
+        clone_prefixes   => $real_cgit_clone_prefixes,
+        require          => User::Managed[$name],
       }
     }
 
