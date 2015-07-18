@@ -41,6 +41,8 @@ class gitolite::base {
     selinux::fcontext{
       '/opt/git-hooks(/.*)?':
         setype => 'bin_t';
+      '/home/[^/]+/git_tmp(/.*)?':
+        setype => 'httpd_git_rw_content_t';
     }
   }
 }

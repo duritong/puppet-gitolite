@@ -195,6 +195,12 @@ define gitolite::repostorage(
         owner   => $name,
         group   => $name,
         mode    => '0600';
+      "${real_basedir}/git_tmp":
+        ensure  => directory,
+        owner   => $name,
+        group   => $name,
+        seltype => 'httpd_git_rw_content_t',
+        mode    => '0600';
     }
     exec{"create_gitolite_${name}":
       command     => "gitolite setup -pk ${real_basedir}/${initial_admin}.pub",
