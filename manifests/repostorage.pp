@@ -122,6 +122,7 @@ define gitolite::repostorage(
       nagios_check     => $nagios_check,
       nagios_web_check => $nagios_web_check,
       nagios_web_use   => $nagios_web_use,
+      base_dir         => $real_basedir,
   }
 
   if $ensure == 'present' {
@@ -263,7 +264,6 @@ ${domainalias_suffix}"
       Cgit::Instance[$git_vhost]{
         configuration    => $configuration,
         domainalias      => $real_domainalias,
-        base_dir         => $real_basedir,
         user             => $name,
         group            => $name,
         anonymous_http   => $anonymous_http,
