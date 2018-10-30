@@ -35,6 +35,12 @@ class gitolite::base {
   }
 
   if str2bool($::selinux) {
+    if versioncmp($facts['os']['release']['major'],'7') >= 0 {
+      $setype = 'git_content_t'
+    } else {
+      $setype = 'httpd_git_rw_content_t'
+    }
+
     File['/opt/git-hooks']{
       seltype => 'bin_t',
     }
@@ -42,7 +48,7 @@ class gitolite::base {
       '/opt/git-hooks(/.*)?':
         setype => 'bin_t';
       '/home/[^/]+/git_tmp(/.*)?':
-        setype => 'httpd_git_rw_content_t';
+        setype => $setype,
     }
   }
 }

@@ -126,6 +126,7 @@ define gitolite::repostorage(
   }
 
   if $ensure == 'present' {
+    include ::gitolite
     User::Groups::Manage_user[$name,"gitolited_in_${name}"]{
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
@@ -195,12 +196,15 @@ define gitolite::repostorage(
         content => template('gitolite/gitolite.rc.erb'),
         owner   => $name,
         group   => $name,
-        mode    => '0600';
+        mode    => '0600',
+        seluser => 'system_u',
+        seltype => 'git_content_t';
       "${real_basedir}/git_tmp":
         ensure  => directory,
         owner   => $name,
         group   => $name,
-        seltype => 'httpd_git_rw_content_t',
+        seluser => 'system_u',
+        seltype => $gitolite::base::setype,
         mode    => '0600';
     }
     exec{"create_gitolite_${name}":
@@ -283,7 +287,8 @@ ${domainalias_suffix}"
     exec{"restorecon_${name}":
       command     => "restorecon -R ${real_basedir}",
       refreshonly => true,
-      subscribe   => Exec["create_gitolite_${name}"];
+      subscribe   => Exec["create_gitolite_${name}"],
+      require     => Cgit::Instance[$git_vhost];
     }
   }
 

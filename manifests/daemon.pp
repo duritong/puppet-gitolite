@@ -5,7 +5,30 @@ class gitolite::daemon(
   class{'git::daemon':
     use_shorewall => $use_shorewall,
   }
-  include xinetd
+  if versioncmp($facts['os']['release']['major'],'7') >= 0 {
+    systemd::unit_file{
+      'git@.service':
+        source => 'puppet:///modules/gitolite/daemon/git@.service',
+    } -> service{'git.socket':
+      ensure => running,
+      enable => true,
+    }
+  } else {
+    include xinetd
+    augeas{'enable_git_daemon':
+      context => '/files/etc/xinetd.d/git/service',
+      changes => [
+        'set disable no',
+        'set user gitolited',
+        'rm server_args/value',
+        'set server_args/value[1] --interpolated-path=/var/lib/git/%H/%D',
+        'set server_args/value[2] --syslog',
+        'set server_args/value[3] --inetd',
+      ],
+      notify  => Service['xinetd'],
+      require => User::Managed['gitolited'],
+    }
+  }
 
   $shell = $::operatingsystem ? {
     debian  => '/usr/sbin/nologin',
@@ -18,7 +41,6 @@ class gitolite::daemon(
     homedir       => '/var/lib/git',
     shell         => $shell,
     require       => Package['git-daemon'],
-    before        => Augeas['enable_git_daemon'],
   }
   # clean dangling links
   file{'/var/lib/git':
@@ -33,20 +55,8 @@ class gitolite::daemon(
     recurselimit  => 1,
     require       => Package['git-daemon'],
   }
-  augeas{'enable_git_daemon':
-    context => '/files/etc/xinetd.d/git/service',
-    changes => [
-      'set disable no',
-      'set user gitolited',
-      'rm server_args/value',
-      'set server_args/value[1] --interpolated-path=/var/lib/git/%H/%D',
-      'set server_args/value[2] --syslog',
-      'set server_args/value[3] --inetd',
-    ],
-    notify  => Service['xinetd'],
-  }
 
-  if $::selinux == 'true' {
+  if str2bool($facts['selinux']) {
     include gitolite::daemon::selinux
   }
 }
