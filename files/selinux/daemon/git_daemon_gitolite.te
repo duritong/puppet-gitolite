@@ -5,6 +5,8 @@ require {
         type git_system_content_t;
         type git_content_t;
         class lnk_file read;
+        class dir { getattr open read search };
+        class file { getattr open read };
 }
 
 #============= git_system_t ==============

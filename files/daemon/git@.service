@@ -1,3 +1,4 @@
 [Service]
 User=gitolited
-ExecStart=-/usr/libexec/git-core/git-daemon --interpolated-path=/var/lib/git/%H/%D --syslog --inetd
+ExecStart=-/usr/libexec/git-core/git-daemon --interpolated-path=/var/lib/git/%%H%D --syslog --inetd
+StandardInput=socket
