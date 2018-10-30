@@ -186,6 +186,11 @@ define gitolite::repostorage(
     } else {
       $pubkey = "${initial_sshkey}\n"
     }
+    if versioncmp($facts['os']['release']['major'],'7') >= 0 {
+      $rc_seltype = 'git_content_t'
+    } else {
+      $rc_seltype = 'httpd_git_rw_content_t'
+    }
     file{
       "${real_basedir}/${initial_admin}.pub":
         content => $pubkey,
@@ -198,7 +203,7 @@ define gitolite::repostorage(
         group   => $name,
         mode    => '0600',
         seluser => 'system_u',
-        seltype => 'git_content_t';
+        seltype => $rc_seltype;
       "${real_basedir}/git_tmp":
         ensure  => directory,
         owner   => $name,
