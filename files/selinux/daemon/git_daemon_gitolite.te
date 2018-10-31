@@ -1,15 +1,22 @@
 module git_daemon_gitolite 1.0;
 
 require {
-        type git_system_t;
-        type git_system_content_t;
-        type git_content_t;
-        class lnk_file read;
-        class dir { getattr open read search };
-        class file { getattr open read };
+	type devlog_t;
+	type git_content_t;
+	type git_system_t;
+	type git_script_t;
+	type git_sys_content_t;
+	class sock_file write;
+	class lnk_file read;
+	class dir { getattr open read search };
+	class file { append getattr open read };
 }
 
+#============= git_script_t ==============
+allow git_script_t devlog_t:sock_file write;
+allow git_script_t git_content_t:file append;
+
 #============= git_system_t ==============
-allow git_system_t git_system_content_t:lnk_file read;
 allow git_system_t git_content_t:dir { getattr open read search };
 allow git_system_t git_content_t:file { getattr open read };
+allow git_system_t git_sys_content_t:lnk_file read;
