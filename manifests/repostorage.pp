@@ -24,7 +24,7 @@ define gitolite::repostorage(
   $cgit_options        = {},
   $cgit_clone_prefixes = undef,
   $nagios_check        = false,
-  $nagios_web_check    = 'OK',
+  $nagios_check_code   = 'OK',
   $nagios_web_use      = 'generic-service'
 ){
 
@@ -117,12 +117,12 @@ define gitolite::repostorage(
   }
   cgit::instance{
     $git_vhost:
-      ensure           => $cgit_ensure,
-      ssl_mode         => $ssl_mode,
-      nagios_check     => $nagios_check,
-      nagios_web_check => $nagios_web_check,
-      nagios_web_use   => $nagios_web_use,
-      base_dir         => $real_basedir,
+      ensure            => $cgit_ensure,
+      ssl_mode          => $ssl_mode,
+      nagios_check      => $nagios_check,
+      nagios_check_code => $nagios_check_code,
+      nagios_web_use    => $nagios_web_use,
+      base_dir          => $real_basedir,
   }
 
   if $ensure == 'present' {
