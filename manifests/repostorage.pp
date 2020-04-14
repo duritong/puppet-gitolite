@@ -42,7 +42,7 @@ define gitolite::repostorage(
   if ($ensure == 'present') and ($anonymous_http and !$cgit) {
     fail("Must enable \$cgit if you want to use anonymous_http for ${name}!")
   }
-  include ::gitolite
+  include gitolite
 
   $real_password = $password ? {
     'trocla'  => trocla("gitolite_${name}",'sha512crypt'),
@@ -94,7 +94,7 @@ define gitolite::repostorage(
     }
   }
 
-  include ::gitolite::gitaccess
+  include gitolite::gitaccess
   $gitolited_ensure = $ensure ? {
     'absent'  => 'absent',
     default   => $git_daemon ? {
@@ -126,7 +126,7 @@ define gitolite::repostorage(
   }
 
   if $ensure == 'present' {
-    include ::gitolite
+    include gitolite
     User::Groups::Manage_user[$name,"gitolited_in_${name}"]{
       require => [ Group['gitaccess'], User::Managed[$name] ],
     }
